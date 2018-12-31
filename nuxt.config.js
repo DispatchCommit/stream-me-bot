@@ -5,7 +5,7 @@ module.exports = {
 
     server: {
         // port: 80,
-        host: 'localhost',
+        // host: 'localhost',
     },
 
     /*
