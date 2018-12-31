@@ -11,7 +11,7 @@
   "scripts": {
     "dev": "nuxt",
     "build": "nuxt build",
-    "preinstall": "build",
+    "preinstall": "npm run build",
     "start": "nuxt start",
     "generate": "nuxt generate",
     "lint": "eslint --ext .js,.vue --ignore-path .gitignore .",
