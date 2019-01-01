@@ -9,7 +9,6 @@
       md6>
       <div class="text-xs-center mb-1">
         <logo/>
-        <!--<vuetify-logo/>-->
       </div>
 
       <v-card>
@@ -50,12 +49,10 @@
 
 <script>
 import Logo from '~/components/Logo.vue'
-import VuetifyLogo from '~/components/VuetifyLogo.vue'
 
 export default {
   components: {
     Logo,
-    VuetifyLogo
   }
 }
 </script>
