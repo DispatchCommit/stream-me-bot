@@ -58,7 +58,7 @@
                             color="#2196f3"
                             outline
                         >
-                            Danish
+                            ALEX
                         </v-btn>
 
                         <v-btn
@@ -66,7 +66,15 @@
                             color="info"
                             outline
                         >
-                            Dispatch
+                            DSPTCH
+                        </v-btn>
+
+                        <v-btn
+                            @click="chat2 = ids.kovalski"
+                            color="warning"
+                            outline
+                        >
+                            KVLSKI
                         </v-btn>
 
                     </v-layout>
@@ -90,6 +98,7 @@
 <script>
     const CHAT_DANISH = '9a86d241-a30f-4c5e-bdc8-fcdd1a2517ee';
     const CHAT_DISPATCH = '7d6ae401-a406-4b66-9c6d-b026bfbfbe74';
+    const CHAT_KOVALSKI = '24b6b00e-1b7c-471b-86df-1c8a30b97b49';
     const CHAT_KITTY = '406f9188-3066-11e5-9aee-42010af0b4cf';
 
     export default {
@@ -113,6 +122,7 @@
                 ids: {
                     danish   : CHAT_DANISH,
                     dispatch : CHAT_DISPATCH,
+                    kovalski : CHAT_KOVALSKI,
                 }
             }
         },

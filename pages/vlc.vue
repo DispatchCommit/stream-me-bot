@@ -62,17 +62,25 @@
 
                     <hr class="my-2" />
 
-                    <div>Username: {{ this.userdata['username'] }}</div>
+                    <div v-if="userdata['userPublicId']">
+                        <div>Username: {{ this.userdata['username'] }}</div>
 
-                    <div>User ID: {{ this.userdata['userPublicId'] }}</div>
+                        <div>User ID: {{ this.userdata['userPublicId'] }}</div>
 
-                    <div v-if="userdata['userPublicId']">Chatroom ID: {{ this.userdata['_embedded']['streams'][0].chatroomId }}</div>
+                        <div>Chatroom ID: {{ this.userdata['_embedded']['streams'][0].chatroomId }}</div>
+                    </div>
 
                     <v-layout
+                        wrap
                         class="mt-2"
                         v-if="userdata['stats']"
                     >
-                        <v-flex v-for="(stat, key) of this.userdata['stats']['raw']" :key="stat">
+                        <v-flex
+                            justify-center
+                            v-for="(stat, key) of this.userdata['stats']['raw']"
+                            :key="stat"
+                            class="text-xs-center"
+                        >
                             <v-chip>{{ key }}: {{ stat }}</v-chip>
                         </v-flex>
                     </v-layout>
@@ -90,7 +98,7 @@
 
                 <v-card-text>
 
-                    <div style="min-height: 4rem;">
+                    <div style="min-height: 4rem; overflow-x: auto;">
                         <pre
                             style="white-space: pre-wrap"
                         >{{ streamdata }}</pre>
@@ -134,7 +142,6 @@
                 } catch (e) {
                     console.log(e);
                     this.errorMessage = `${ e['response']['status'] } Error`;
-                    // this.streamdata = e['response']['data'];
                     this.streamdata = e;
                     console.error(e);
                     return null;
