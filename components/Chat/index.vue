@@ -2,6 +2,7 @@
 
         <v-navigation-drawer
             v-model="showChat"
+            width="325"
             fixed
             right
             clipped
@@ -54,24 +55,27 @@
                         row
                     >
                         <v-btn
-                            @click="chat2 = ids.danish"
+                            @click="setLocalChat('danishpolice')"
                             color="#2196f3"
+                            small
                             outline
                         >
                             ALEX
                         </v-btn>
 
                         <v-btn
-                            @click="chat2 = ids.dispatch"
+                            @click="setLocalChat('dispatch')"
                             color="info"
+                            small
                             outline
                         >
                             DSPTCH
                         </v-btn>
 
                         <v-btn
-                            @click="chat2 = ids.kovalski"
+                            @click="setLocalChat('kovalski')"
                             color="warning"
+                            small
                             outline
                         >
                             KVLSKI
@@ -96,10 +100,10 @@
 </template>
 
 <script>
-    const CHAT_DANISH = '9a86d241-a30f-4c5e-bdc8-fcdd1a2517ee';
+    const CHAT_DANISH   = '9a86d241-a30f-4c5e-bdc8-fcdd1a2517ee';
     const CHAT_DISPATCH = '7d6ae401-a406-4b66-9c6d-b026bfbfbe74';
     const CHAT_KOVALSKI = '24b6b00e-1b7c-471b-86df-1c8a30b97b49';
-    const CHAT_KITTY = '406f9188-3066-11e5-9aee-42010af0b4cf';
+    const CHAT_KITTY    = '406f9188-3066-11e5-9aee-42010af0b4cf';
 
     export default {
         name: 'ChatSkeleton',
@@ -131,6 +135,28 @@
             emitUpdate(val) {
                 this.$emit( 'input', val );
             },
+
+            async getUserData(username) {
+                let url = `https://cors.io/?https://www.stream.me/api-user/v2/${
+                    username
+                    }/app/web/channel`;
+                try {
+                    return await this.$axios.$get(url);
+                } catch (e) {
+                    console.error(e);
+                    return null;
+                }
+            },
+
+            async getUserID(user) {
+                const data = await this.getUserData(user);
+                return data['userPublicId'];
+            },
+
+            async setLocalChat(user) {
+                this.chat2 = await this.getUserID(user);
+            },
+
         },
 
         computed: {
@@ -146,7 +172,6 @@
     .strm-chat {
         background: #000;
         box-sizing: border-box;
-        /*flex-basis: 100%;*/
     }
 
     .strm-chat iframe {
