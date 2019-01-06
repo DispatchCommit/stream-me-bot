@@ -135,7 +135,7 @@
             },
 
             async getUserData(username) {
-                const url = `https://cors.io/?https://www.stream.me/api-user/v2/${username}/app/web/channel`;
+                const url = `/api-user/v2/${username}/app/web/channel`;
                 try {
                     return await this.$axios.$get(url);
                 } catch (e) {
