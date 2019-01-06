@@ -34,7 +34,7 @@
                 LIVE
             </v-chip>
 
-            <v-toolbar-title v-text="title"/>
+            <v-toolbar-title v-text="TITLE"/>
 
             <v-spacer />
 
@@ -55,6 +55,8 @@
 </template>
 
 <script>
+    import { mapState } from 'vuex'
+
     import NavMenu from '../components/NavMenu'
     import Chat from '../components/Chat'
 
@@ -80,6 +82,12 @@
                 ],
                 title: 'Dispatch: Archival Adventure',
             }
+        },
+
+        computed: {
+            ...mapState({
+                TITLE : 'TITLE',
+            }),
         }
     }
 </script>

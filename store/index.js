@@ -2,14 +2,14 @@ import axios from 'axios'
 
 export const state = () => ({
 
-    username: 'dispatch',
+    TITLE: 'STREAM TITLE',
 
 });
 
 export const mutations = {
 
     setUserName (state) {
-        state.username = state;
+        state.TITLE = state;
     },
 
 };

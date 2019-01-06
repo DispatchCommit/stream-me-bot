@@ -42,7 +42,10 @@
                 <v-layout class="strm-chat">
                     <v-flex>
                         <div class="test">
-                            <iframe :src="`https://www.stream.me/stream-embed/user:${ chat1 }:web/chat-widget/`" frameborder="0"></iframe>
+                            <iframe
+                                :src="topChatURL"
+                                frameborder="0"
+                            ></iframe>
                         </div>
                     </v-flex>
                 </v-layout>
@@ -51,34 +54,24 @@
                 <div>
                     <v-layout
                         align-center
-                        justify-space-around
+                        justify-space-between
                         row
                     >
-                        <v-btn
-                            @click="setLocalChat('danishpolice')"
-                            color="#2196f3"
-                            small
-                            outline
-                        >
-                            ALEX
-                        </v-btn>
 
                         <v-btn
+                            icon
                             @click="setLocalChat('dispatch')"
-                            color="info"
-                            small
-                            outline
                         >
-                            DSPTCH
+                            <v-icon>beenhere</v-icon>
                         </v-btn>
+
+                        <h3>Local Chat</h3>
 
                         <v-btn
                             @click="setLocalChat('kovalski')"
-                            color="warning"
-                            small
-                            outline
+                            icon
                         >
-                            KVLSKI
+                            <v-icon>settings</v-icon>
                         </v-btn>
 
                     </v-layout>
@@ -88,7 +81,10 @@
                 <v-layout class="strm-chat">
                     <v-flex>
                         <div class="test">
-                            <iframe :src="`https://www.stream.me/stream-embed/user:${ chat2 }:web/chat-widget/`" frameborder="0"></iframe>
+                            <iframe
+                                :src="`https://www.stream.me/stream-embed/user:${ chat2 }:web/chat-widget/`"
+                                frameborder="0"
+                            ></iframe>
                         </div>
                     </v-flex>
                 </v-layout>
@@ -100,6 +96,8 @@
 </template>
 
 <script>
+    import { mapState } from 'vuex';
+
     const CHAT_DANISH   = '9a86d241-a30f-4c5e-bdc8-fcdd1a2517ee';
     const CHAT_DISPATCH = '7d6ae401-a406-4b66-9c6d-b026bfbfbe74';
     const CHAT_KOVALSKI = '24b6b00e-1b7c-471b-86df-1c8a30b97b49';
@@ -137,9 +135,7 @@
             },
 
             async getUserData(username) {
-                let url = `https://cors.io/?https://www.stream.me/api-user/v2/${
-                    username
-                    }/app/web/channel`;
+                const url = `https://cors.io/?https://www.stream.me/api-user/v2/${username}/app/web/channel`;
                 try {
                     return await this.$axios.$get(url);
                 } catch (e) {
@@ -160,9 +156,21 @@
         },
 
         computed: {
+            ...mapState('Chat', {
+                target: 'TARGET',
+            }),
+
             showChat: {
                 get() { return this.value },
                 set(val) { this.emitUpdate(val) },
+            },
+
+            topChatURL() {
+                if (this.target.userId) {
+                    return `https://www.stream.me/stream-embed/user:${this.target.userId}:web/chat-widget/`;
+                } else {
+                    return null;
+                }
             },
         },
     }

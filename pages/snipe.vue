@@ -3,7 +3,6 @@
       <v-layout
           column
           justify-center
-          align-center
       >
           <v-flex>
 
@@ -16,13 +15,24 @@
                       :aspect-ratio="16/9"
                   >
                       <iframe
+                          v-if="embedURL"
                           :src='embedURL'
                           frameborder="0"
                       ></iframe>
                   </v-responsive>
               </v-layout>
 
-              <hr class="mb-2">
+              <!--<hr
+                  class="mb-2"
+                  :color="`${ currentUser ? ( users[currentUser].live ? '#4CAF50' : 'error' ) : '#ff9800' }`"
+              >-->
+
+              <v-progress-linear
+                  :color="`${ currentUser ? ( users[currentUser].live ? '#4CAF50' : 'error' ) : '#607D8B' }`"
+                  height="3"
+                  :value="progress"
+                  class="mt-0 mb-2"
+              ></v-progress-linear>
 
               <v-layout
                   row
@@ -30,16 +40,19 @@
               >
 
                   <v-flex
-                      v-for="(user) in users"
+                      v-for="(user, index) in users"
                       :key="user.username"
                       text-xs-center
                   >
 
                       <v-btn
-                          :color=" user.live ? '#2196f3' : 'error' "
-                          @click="currentUser = user.username"
+                          :color="statusColor(user.live)"
+                          :disabled="user.live === null"
+                          @click="selectUser(index)"
+                          small
+                          dark
                       >
-                          {{ user.label }} ({{ user.viewers }})
+                          {{ `${user.label}${user.viewers ? ` (${user.viewers})` : ''}` }}
                       </v-btn>
 
                   </v-flex>
@@ -52,6 +65,8 @@
 </template>
 
 <script>
+    import { mapActions } from 'vuex';
+
     export default {
         name: 'Snipe',
 
@@ -61,106 +76,134 @@
                     {
                         label: 'Kitty',
                         username: 'kittystyle',
-                        live: false,
+                        live: undefined,
                         viewers: 0,
                     },
                     {
                         label: 'KOVALSKI',
                         username: 'kovalski',
-                        live: false,
+                        live: undefined,
                         viewers: 0,
                     },
                     {
                         label: 'Ralph',
                         username: 'theralphretort',
-                        live: false,
+                        live: undefined,
                         viewers: 0,
                     },
                     {
                         label: 'Zidan',
                         username: 'zidan',
-                        live: false,
+                        live: undefined,
                         viewers: 0,
                     },
                     {
                         label: 'Gator',
                         username: 'gator',
-                        live: false,
+                        live: undefined,
                         viewers: 0,
                     },
                     {
                         label: 'Josh',
                         username: 'kiwifarms',
-                        live: false,
+                        live: undefined,
                         viewers: 0,
                     },
                     {
                         label: 'Jim',
                         username: 'mistermetokur',
-                        live: false,
+                        live: undefined,
                         viewers: 0,
                     },
                     {
                         label: 'Rand',
                         username: 'randbot2020',
-                        live: false,
+                        live: undefined,
                         viewers: 0,
                     },
                     {
                         label: 'DarkV',
                         username: 'darkvulgar',
-                        live: false,
+                        live: undefined,
                         viewers: 0,
                     },
                     {
                         label: 'COG',
                         username: 'TheCognificent',
-                        live: false,
+                        live: undefined,
                         viewers: 0,
                     },
                     {
                         label: 'SPCC',
                         username: 'spcc',
-                        live: false,
+                        live: undefined,
                         viewers: 0,
                     },
                     {
                         label: 'Alex',
                         username: 'danishpolice',
-                        live: false,
+                        live: undefined,
                         viewers: 0,
                     },
                     {
                         label: 'DISPATCH',
                         username: 'dispatch',
-                        live: false,
+                        live: undefined,
                         viewers: 0,
                     },
                     {
                         label: 'NPC',
                         username: 'NPCAnon88',
-                        live: false,
+                        live: undefined,
                         viewers: 0,
                     },
                 ],
                 chat: false,
-                currentUser: 'kittystyle',
+                currentUser: null,
+                progress: 0,
             }
         },
 
         computed: {
             embedURL() {
-                return`https://www.stream.me/stream-embed/${ this.currentUser }/chat-right?hideChat=${ !this.chat }&noPopoutButton=true`;
-            }
+                const user = this.users[this.currentUser];
+                if (!!this.currentUser)
+                    return `https://www.stream.me/stream-embed/${user.username}/chat-right?hideChat=${!this.chat}&noPopoutButton=true`;
+                else
+                    return false;
+            },
         },
 
         methods: {
+            ...mapActions('Chat', {
+                updateTarget : 'UPDATE_TARGET',
+            }),
+
+            statusColor(status) {
+                if (status === undefined) return 'accent';
+                return status ? 'primary' : 'error';
+            },
+
+            async selectUser(userIndex) {
+                this.currentUser = userIndex;
+
+                const data = await this.getUserData(this.users[userIndex].username);
+                if (data) {
+                    const u = {
+                        username : data['username'],
+                        userId   : data['userPublicId'],
+                    };
+                    this.updateTarget(u);
+                }
+
+            },
+
             async getUserData(username) {
-                let url = `https://cors.io/?https://www.stream.me/api-user/v2/${ username }/app/web/channel`;
+                const url = `https://cors.io/?https://www.stream.me/api-user/v2/${username}/app/web/channel`;
                 try {
                     return await this.$axios.$get(url);
                 } catch (e) {
-                    console.error(e);
+                    console.warn(e);
                     return null;
                 }
             },
@@ -169,7 +212,7 @@
                 if (data) {
                     return !!data._embedded.streams[0].active;
                 } else {
-                    return true;
+                    return null;
                 }
             },
 
@@ -177,27 +220,44 @@
                 if (data) {
                     return data.stats.raw.viewers;
                 } else {
-                    return 0;
+                    return null;
                 }
             },
 
             async updateUsers() {
-                console.log('Getting latest user data...');
+                console.groupCollapsed('⏳ Updating user data.');
 
-                for (let i = 0, j = this.users.length; i < j; i++) {
+                this.progress = 0;
+                let log = [];
+                for ( let i = 0, j = this.users.length; i < j; i++ ) {
                     const user = this.users[i];
 
                     this.users[i]._data = await this.getUserData(user.username);
+                    this.progress = 100 / j * i;
+                }
+                this.progress = 100;
+
+                for ( let i = 0, j = this.users.length; i < j; i++ ) {
+                    const user = this.users[i];
 
                     this.users[i].live = this.checkIfLive(user._data);
                     this.users[i].viewers = this.getViewers(user._data);
 
-                    console.log(`${user.username} - Live: ${ user.live }, Viewers: ${ user.viewers }`);
+                    log.push({
+                        username: user.username,
+                        live: user.live,
+                        viewers: user.viewers,
+                    });
                 }
+
+                console.table(log);
+                console.groupEnd();
+                console.log('✅ Finished updating');
             },
         },
 
         async mounted() {
+            // await this.selectUser(0);
             await this.updateUsers();
 
             const timeToRefresh = 60;
