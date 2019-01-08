@@ -167,7 +167,7 @@
         computed: {
             embedURL() {
                 const user = this.users[this.currentUser];
-                if (!!this.currentUser)
+                if (this.currentUser !== null)
                     return `https://www.stream.me/stream-embed/${user.username}/chat-right?hideChat=${!this.chat}&noPopoutButton=true`;
                 else
                     return false;
