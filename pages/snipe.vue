@@ -73,12 +73,12 @@
         data() {
             return {
                 users: [
-                    {
+                    /*{
                         label: 'Kitty',
                         username: 'kittystyle',
                         live: undefined,
                         viewers: 0,
-                    },
+                    },*/
                     {
                         label: 'KOVALSKI',
                         username: 'kovalski',
@@ -257,7 +257,7 @@
         },
 
         async mounted() {
-            // await this.selectUser(0);
+            // await this.selectUser(1);
             await this.updateUsers();
 
             const timeToRefresh = 60;

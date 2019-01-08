@@ -27,7 +27,7 @@
                             <v-icon>accessible_forward</v-icon>
                         </v-btn>
 
-                        <h3>Target Chat</h3>
+                        <h3>SnipeStream Chat {{ target.username }}</h3>
 
                         <v-btn
                             icon

@@ -55,6 +55,8 @@
 </template>
 
 <script>
+    // import { db } from '~/plugins/firebase.js'
+
     import { mapState } from 'vuex'
 
     import NavMenu from '../components/NavMenu'
@@ -79,6 +81,7 @@
                     { icon: 'desktop_windows', title: 'Stream Snipe', to: '/snipe' },
                     { icon: 'movie', title: 'YouTube', to: '/youtube' },
                     { icon: 'subscriptions', title: 'TogetherTube', to: '/togethertube' },
+                    { icon: 'verified_user', title: 'Settings', to: '/login' },
                 ],
                 title: 'Dispatch: Archival Adventure',
             }
@@ -88,6 +91,14 @@
             ...mapState({
                 TITLE : 'TITLE',
             }),
+        },
+
+        mounted() {
+            // db.collection("users").get().then((querySnapshot) => {
+            //     this.users = querySnapshot.docs.map(doc =>
+            //         Object.assign({ id: doc.id }, doc.data())
+            //     )
+            // });
         }
     }
 </script>
