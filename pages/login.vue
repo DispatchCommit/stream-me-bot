@@ -31,7 +31,7 @@
                                 v-model="user.name"
                                 light="light"
                                 prepend-icon="person"
-                                label="Name"
+                                label="Username"
                             />
 
                             <v-text-field
@@ -76,7 +76,7 @@
                                 type="submit"
                                 color="primary"
                                 depressed
-                                @click.prevent="createUser(user.email, user.password)"
+                                @click.prevent="createUser(user.email, user.password, user.name)"
                             >Sign up</v-btn>
 
                         </v-form>
@@ -140,7 +140,7 @@
 </template>
 
 <script>
-    import { auth } from '~/plugins/firebase.js'
+    import { auth, db } from '@/plugins/firebase.js'
 
     export default {
         name: 'login',
@@ -178,16 +178,20 @@
         },
 
         methods: {
-            async createUser(email, password) {
+            async createUser(email, password, username) {
                 try {
                     const userCredential = await auth.createUserWithEmailAndPassword(email, password);
                     console.log(userCredential);
+                    const docRef = await db.collection('users').doc(userCredential.user.uid).set({
+                        uid: userCredential.user.uid,
+                        username: username,
+                        email: email,
+                    });
+                    console.log(docRef);
                 } catch (error) {
-                    const errorCode = error.code;
-                    const errorMessage = error.message;
                     this.error = error;
                     this.showError = true;
-                    console.error(`${errorCode}: ${errorMessage}`);
+                    console.error(`${error.code}: ${error.message}`);
                 }
             },
 
@@ -196,20 +200,10 @@
                     const userCredential = await auth.signInWithEmailAndPassword(email, password);
                     console.log(userCredential);
                 } catch (error) {
-                    const errorCode = error.code;
-                    const errorMessage = error.message;
                     this.error = error;
                     this.showError = true;
-                    console.error(`${errorCode}: ${errorMessage}`);
+                    console.error(`${error.code}: ${error.message}`);
                 }
-            },
-
-            async testCreate() {
-                await this.createUser('admins@test.com', 'testing123');
-            },
-
-            async testSignIn() {
-                await this.signIn('admins@test.com', 'testing123');
             },
         },
 
