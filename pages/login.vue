@@ -29,6 +29,7 @@
                             <v-text-field
                                 v-if="!options.isLoggingIn"
                                 v-model="user.name"
+                                :disabled="loading"
                                 light="light"
                                 prepend-icon="person"
                                 label="Username"
@@ -37,6 +38,7 @@
                             <v-text-field
                                 v-model="user.email"
                                 :rules="emailRules"
+                                :disabled="loading"
                                 light="light"
                                 prepend-icon="email"
                                 label="Email"
@@ -46,6 +48,7 @@
                             <v-text-field
                                 v-model="user.password"
                                 :rules="passwordRules"
+                                :disabled="loading"
                                 light="light"
                                 prepend-icon="lock"
                                 label="Password"
@@ -55,6 +58,7 @@
                             <v-checkbox
                                 v-if="options.isLoggingIn"
                                 v-model="options.shouldStayLoggedIn"
+                                :disabled="loading"
                                 class="mb-4"
                                 light="light"
                                 label="Stay logged in?"
@@ -66,6 +70,7 @@
                                 color="primary"
                                 block="block"
                                 type="submit"
+                                :disabled="loading"
                                 depressed
                                 @click.prevent="signIn(user.email, user.password)"
                             >Sign in</v-btn>
@@ -75,6 +80,7 @@
                                 block="block"
                                 type="submit"
                                 color="primary"
+                                :disabled="loading"
                                 depressed
                                 @click.prevent="createUser(user.email, user.password, user.name)"
                             >Sign up</v-btn>
@@ -127,6 +133,22 @@
                     </v-btn>
                 </v-snackbar>
 
+                <v-snackbar
+                    v-model="showSuccess"
+                    :timeout="5000"
+                    color="success"
+                    bottom
+                >
+                    {{ success.message }}
+                    <v-btn
+                        dark
+                        flat
+                        @click="showSuccess = false"
+                    >
+                        Close
+                    </v-btn>
+                </v-snackbar>
+
             </v-flex>
 
 
@@ -159,9 +181,16 @@
                     show: false,
                 },
 
+                loading: false,
+
                 showError: false,
                 error: {
                     code: '',
+                    message: '',
+                },
+
+                showSuccess: false,
+                success: {
                     message: '',
                 },
 
@@ -179,31 +208,50 @@
 
         methods: {
             async createUser(email, password, username) {
+                this.loading = true;
                 try {
                     const userCredential = await auth.createUserWithEmailAndPassword(email, password);
                     console.log(userCredential);
-                    const docRef = await db.collection('users').doc(userCredential.user.uid).set({
-                        uid: userCredential.user.uid,
+                    const userId = userCredential.user.uid;
+                    const docRef = await db.collection('users').doc(userId).set({
+                        uid: userId,
                         username: username,
                         email: email,
                     });
                     console.log(docRef);
+                    this.showSuccessToast(`Logged in!`);
                 } catch (error) {
-                    this.error = error;
-                    this.showError = true;
+                    // this.error = error;
+                    // this.showError = true;
                     console.error(`${error.code}: ${error.message}`);
+                    this.showErrorToast(error.message);
                 }
+                this.loading = false;
             },
 
             async signIn(email, password) {
+                this.loading = true;
                 try {
                     const userCredential = await auth.signInWithEmailAndPassword(email, password);
                     console.log(userCredential);
+                    this.showSuccessToast(`Logged in!`);
                 } catch (error) {
-                    this.error = error;
-                    this.showError = true;
+                    // this.error = error;
+                    // this.showError = true;
                     console.error(`${error.code}: ${error.message}`);
+                    this.showErrorToast(error.message);
                 }
+                this.loading = false;
+            },
+
+            showErrorToast(message) {
+                this.showError = true;
+                this.error.message = message;
+            },
+
+            showSuccessToast(message) {
+                this.showSuccess = true;
+                this.success.message = message;
             },
         },
 
@@ -217,5 +265,4 @@
     .login-form {
         max-width: 500px;
     }
-
 </style>
