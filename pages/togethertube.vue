@@ -1,14 +1,21 @@
 <template>
         <v-layout
-            row
-            justify-center
-            align-center
+            fill-height
         >
             <v-flex
-                xs11
+                xs12
+                fill-height
+                justify-center
+                align-center
             >
-                <v-card class="website" style="width: 100%;">
-                    <iframe style="height: 600px;" src="http://togethertube.com/rooms/dispatch" frameborder="0"></iframe>
+                <v-card
+                    class="website"
+                    :style="embedStyle"
+                >
+                    <iframe
+                        frameborder="0"
+                        src="http://togethertube.com/rooms/dispatch"
+                    ></iframe>
                 </v-card>
             </v-flex>
         </v-layout>
@@ -19,10 +26,19 @@
         name: 'togethertube',
 
         data() {
-            return {}
+            return {
+                embedWidth: '100%',
+                embedHeight: '85%',
+            }
         },
 
-        computed: {},
+        computed: {
+            embedStyle() {
+                const width = `width: ${this.embedWidth};`;
+                const height = `height: ${this.embedHeight};`;
+                return `${width} ${height}`;
+            },
+        },
 
         methods: {},
     }

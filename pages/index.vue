@@ -15,14 +15,13 @@
                 </div>
 
                 <v-card>
-                    <v-card-title class="headline">Welcome to Dispatch's Stream</v-card-title>
+                    <v-card-title class="headline">Welcome to Dispatch's Stream Overlay</v-card-title>
 
                     <v-card-text>
-                        <p>This is where I plan to place a video or other capture source media.
+                        <p>An advanced streaming utility optimized for stream sniping and video viewing built with Vuetify, Nuxt, and Vue.js, running on Heroku, and backed by Firebase.
                             <br>Vueitfy is inspired by Google's material design guidelines.</p>
 
-                        <p>Thank you for watching my development process process.
-                            <br>I am using Vue.js & Nuxt combined with with Vuetify's material design components.</p>
+                        <p>Thank you for watching my development process and supporting my streams.</p>
 
                         <div class="text-xs-right">
                             <em><small>&mdash; Dispatch</small></em>

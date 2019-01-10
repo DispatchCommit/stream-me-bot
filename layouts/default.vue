@@ -77,11 +77,11 @@
                 items: [
                     { icon: 'apps', title: 'Welcome', to: '/' },
                     { icon: 'bubble_chart', title: 'Inspire', to: '/inspire' },
-                    { icon: 'bubble_chart', title: 'VLC Link', to: '/vlc' },
+                    { icon: 'link', title: 'VLC Link', to: '/vlc' },
                     { icon: 'desktop_windows', title: 'Stream Snipe', to: '/snipe' },
                     { icon: 'movie', title: 'YouTube', to: '/youtube' },
                     { icon: 'subscriptions', title: 'TogetherTube', to: '/togethertube' },
-                    { icon: 'verified_user', title: 'Settings', to: '/login' },
+                    { icon: 'verified_user', title: 'My Profile', to: '/login' },
                 ],
                 title: 'Dispatch: Archival Adventure',
             }
