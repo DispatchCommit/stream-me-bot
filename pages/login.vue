@@ -53,7 +53,7 @@
                                 :disabled="loading"
                                 light="light"
                                 prepend-icon="lock"
-                                :append-icon="options.showPassword ? 'visibility_off' : 'visibility'"
+                                :append-icon="options.showPassword ? 'visibility' : 'visibility_off'"
                                 @click:append="options.showPassword = !options.showPassword"
                                 hint="At least 6 characters"
                                 counter
@@ -66,7 +66,6 @@
                                 v-if="options.isLoggingIn"
                                 v-model="options.shouldStayLoggedIn"
                                 :disabled="loading"
-                                class="mb-4"
                                 light="light"
                                 label="Stay logged in"
                                 hide-details="hide-details"
@@ -75,16 +74,18 @@
                             <v-btn
                                 v-if="options.isLoggingIn"
                                 :disabled="loading"
+                                class="mt-3"
                                 color="primary"
                                 block="block"
                                 type="submit"
                                 depressed
                                 @click.prevent="signIn(user.email, user.password)"
-                            >Sign in</v-btn>
+                            >Login</v-btn>
 
                             <v-btn
                                 v-else
                                 :disabled="loading"
+                                class="mt-3"
                                 block="block"
                                 type="submit"
                                 color="primary"
