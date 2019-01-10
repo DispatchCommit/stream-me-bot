@@ -25,11 +25,12 @@
                             <template v-else>Crate a new account</template>
                         </div>
 
-                        <v-form>
+                        <v-form ref="loginForm">
                             <v-text-field
                                 v-if="!options.isLoggingIn"
                                 v-model="user.name"
                                 :disabled="loading"
+                                validate-on-blur
                                 light="light"
                                 prepend-icon="person"
                                 label="Username"
@@ -39,6 +40,7 @@
                                 v-model="user.email"
                                 :rules="emailRules"
                                 :disabled="loading"
+                                validate-on-blur
                                 light="light"
                                 prepend-icon="email"
                                 label="Email"
@@ -51,8 +53,13 @@
                                 :disabled="loading"
                                 light="light"
                                 prepend-icon="lock"
+                                :append-icon="options.showPassword ? 'visibility_off' : 'visibility'"
+                                @click:append="options.showPassword = !options.showPassword"
+                                hint="At least 6 characters"
+                                counter
+                                validate-on-blur
                                 label="Password"
-                                type="password"
+                                :type="options.showPassword ? 'text' : 'password'"
                             ></v-text-field>
 
                             <v-checkbox
@@ -61,26 +68,26 @@
                                 :disabled="loading"
                                 class="mb-4"
                                 light="light"
-                                label="Stay logged in?"
+                                label="Stay logged in"
                                 hide-details="hide-details"
                             ></v-checkbox>
 
                             <v-btn
                                 v-if="options.isLoggingIn"
+                                :disabled="loading"
                                 color="primary"
                                 block="block"
                                 type="submit"
-                                :disabled="loading"
                                 depressed
                                 @click.prevent="signIn(user.email, user.password)"
                             >Sign in</v-btn>
 
                             <v-btn
                                 v-else
+                                :disabled="loading"
                                 block="block"
                                 type="submit"
                                 color="primary"
-                                :disabled="loading"
                                 depressed
                                 @click.prevent="createUser(user.email, user.password, user.name)"
                             >Sign up</v-btn>
@@ -178,7 +185,7 @@
                 options: {
                     isLoggingIn: true,
                     shouldStayLoggedIn: true,
-                    show: false,
+                    showPassword: false,
                 },
 
                 loading: false,
@@ -208,6 +215,8 @@
 
         methods: {
             async createUser(email, password, username) {
+                if (!this.$refs.loginForm.validate()) return;
+
                 this.loading = true;
                 try {
                     const userCredential = await auth.createUserWithEmailAndPassword(email, password);
@@ -221,8 +230,6 @@
                     console.log(docRef);
                     this.showSuccessToast(`Logged in!`);
                 } catch (error) {
-                    // this.error = error;
-                    // this.showError = true;
                     console.error(`${error.code}: ${error.message}`);
                     this.showErrorToast(error.message);
                 }
@@ -230,14 +237,14 @@
             },
 
             async signIn(email, password) {
+                if (!this.$refs.loginForm.validate()) return;
+
                 this.loading = true;
                 try {
                     const userCredential = await auth.signInWithEmailAndPassword(email, password);
                     console.log(userCredential);
                     this.showSuccessToast(`Logged in!`);
                 } catch (error) {
-                    // this.error = error;
-                    // this.showError = true;
                     console.error(`${error.code}: ${error.message}`);
                     this.showErrorToast(error.message);
                 }
