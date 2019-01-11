@@ -6,7 +6,7 @@
             flat
             nuxt
             to="/profile"
-        >{{ !!user ? user.name : '...' }}</v-btn>
+        >{{ !!user ? user.name : 'NULL' }}</v-btn>
         <v-btn
             v-else
             color=""
@@ -55,12 +55,14 @@
             auth.onAuthStateChanged( user => {
                 if (user) {
                     this.subscribeToUser(user.uid);
+                } else {
+                    if (this.unsubscribeUser) this.unsubscribeUser();
                 }
             });
         },
 
         beforeDestroy() {
-            this.unsubscribeUser();
+            if (this.unsubscribeUser) this.unsubscribeUser();
         },
     }
 </script>

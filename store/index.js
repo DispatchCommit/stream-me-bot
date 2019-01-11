@@ -67,8 +67,14 @@ export const actions = {
         });
     },
 
-    logout({ commit }, user) {
+    async logout({ commit }) {
+        if (unsubscribeUser) unsubscribeUser();
+        commit('setUser', null);
 
+        commit('setAuth', null);
+        Cookie.remove('auth');
+
+        await auth.signOut();
     },
 
 };

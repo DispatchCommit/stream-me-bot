@@ -19,10 +19,6 @@
 </template>
 
 <script>
-    import { auth } from '@/plugins/firebase.js'
-
-    const Cookie = process.client ? require('js-cookie') : undefined;
-
     export default {
         name: 'signout',
 
@@ -32,13 +28,8 @@
 
         methods: {
             async logout() {
-                await auth.signOut();
-
-                // Code will also be required to invalidate the JWT Cookie on external API
-                Cookie.remove('auth');
-                this.$store.commit('setAuth', null);
-
-                setTimeout(() => this.$router.push('/login'), 250);
+                await this.$store.dispatch('logout');
+                setTimeout(() => this.$router.push('/login'), 1000);
             },
         },
 
