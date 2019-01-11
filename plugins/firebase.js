@@ -27,6 +27,4 @@ db.settings({
 export {
     auth,
     db,
-
-    // storage,
 }

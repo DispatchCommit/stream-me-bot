@@ -41,8 +41,8 @@ module.exports = {
     */
     plugins: [
         '@/plugins/vuetify',
-        // '@/plugins/firebase',
-        // '@/plugins/fireauth',
+        '@/plugins/firebase',
+        '@/plugins/fireauth',
     ],
 
     /*
@@ -56,7 +56,6 @@ module.exports = {
     ** Axios module configuration
     */
     axios: {
-        // See https://github.com/nuxt-community/axios-module#options
         proxy: true,
     },
 
