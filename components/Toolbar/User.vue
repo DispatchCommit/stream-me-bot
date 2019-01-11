@@ -30,26 +30,12 @@
         },
 
         methods: {
-            /*async getProfile(uid) {
-                const docRef = db.collection('users').doc(uid);
-                try {
-                    const doc = await docRef.get();
-                    if (doc.exists) {
-                        const data = doc.data();
-                        console.log(doc);
-                        console.log(data);
-                        return data;
-                    } else {
-                        const data = {
-                            uid: uid,
-                        };
-                        console.log(`%cProfile.vue:%c No user data!`, 'background: #2196f3; color: #fff; border-radius: 3px; padding: .25rem;', '');
-                        return data;
-                    }
-                } catch (e) {
-                    console.log(e);
-                }
-            },*/
+            subscribeToUser(uid) {
+                const userdocRef = db.collection('users').doc(uid);
+                this.unsubscribeUser = userdocRef.onSnapshot( doc => {
+                    this.$store.commit('setUser', doc.data());
+                });
+            },
         },
 
         computed: {
@@ -67,14 +53,8 @@
 
         created() {
             auth.onAuthStateChanged( user => {
-                if (this.isAuth) {
-                    this.unsubscribeUser = db.collection('users').doc(user.uid).onSnapshot( doc => {
-                        const data = doc.data();
-                        this.$store.commit('setUser', data);
-                    });
-                } else  {
-                    this.unsubscribeUser();
-                    this.$store.commit('setUser', null);
+                if (user) {
+                    this.subscribeToUser(user.uid);
                 }
             });
         },

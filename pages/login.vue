@@ -258,18 +258,10 @@
 
             async authenticated(user) {
                 if (user) {
-                    const token = await user.getIdToken();
-                    const uid = user.uid;
-
-                    const auth = {
-                        accessToken: token,
-                        uid: uid,
-                    };
-
-                    this.$store.commit('setAuth', auth);
-                    Cookie.set('auth', auth);
-
                     console.log(`%cLogin.vue:%c Logged in! %o`, 'background: #2196f3; color: #fff; border-radius: 3px; padding: .25rem;', '', user);
+
+                    await this.$store.dispatch('login', user);
+
                     this.showSuccessToast(`Logged in!`);
 
                     this.$router.push('/profile');

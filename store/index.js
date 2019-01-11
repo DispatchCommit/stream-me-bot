@@ -1,9 +1,13 @@
+import { auth, db } from '@/plugins/firebase.js';
+
 const cookieparser = process.server ? require('cookieparser') : undefined;
+const Cookie = process.client ? require('js-cookie') : undefined;
+
+let unsubscribeUser = null;
 
 export const state = () => ({
 
     TITLE: 'STREAM TITLE',
-    USER: null,
 
     auth: null,
     user: null,
@@ -45,21 +49,26 @@ export const actions = {
         commit('setAuth', auth);
     },
 
-    /*login({ commit }, { req }) {
+    async login({ commit }, user) {
         const token = await user.getIdToken();
         const uid = user.uid;
 
-        const auth = {
+        const _auth = {
             accessToken: token,
             uid: uid,
         };
 
-        this.$store.commit('setAuth', auth);
-        Cookie.set('auth', auth);
+        commit('setAuth', _auth);
+        Cookie.set('auth', _auth);
+
+        const userdocRef = db.collection('users').doc(uid);
+        unsubscribeUser = userdocRef.onSnapshot( doc => {
+            commit('setUser', doc.data());
+        });
     },
 
-    logout({ commit }, { req }) {
+    logout({ commit }, user) {
 
-    },*/
+    },
 
 };
