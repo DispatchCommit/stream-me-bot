@@ -171,10 +171,8 @@
 
             authenticated(user) {
                 if (user) {
-                    // this.showSuccessToast(`Logged in!`);
-                    this.getProfile(this.uid);
+                    // this.getProfile(this.uid);
                 } else {
-                    // this.showErrorToast(`Logged out!`);
                     this.$router.push('/login');
                 }
             },
@@ -187,6 +185,7 @@
                         console.log(doc);
                         console.log(doc.data());
                         this.user = doc.data();
+                        this.showSuccessToast(`Successfully retrieved user data!`);
                     } else {
                         this.user = {
                             uid: uid,
@@ -198,7 +197,6 @@
                     this.showErrorToast(e.message);
                     console.log(e);
                 }
-
             },
         },
 
@@ -213,6 +211,7 @@
         },
 
         created() {
+            this.getProfile(this.uid);
             auth.onAuthStateChanged( user => this.authenticated(user) );
         },
     }

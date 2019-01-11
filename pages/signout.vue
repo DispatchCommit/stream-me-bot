@@ -38,7 +38,7 @@
                 Cookie.remove('auth');
                 this.$store.commit('setAuth', null);
 
-                setTimeout(() => this.$router.push('/login'), 100);
+                setTimeout(() => this.$router.push('/login'), 250);
             },
         },
 
