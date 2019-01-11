@@ -177,7 +177,6 @@
             return {
                 currentTab: 0,
 
-                user: null,
                 allowEdit: false,
 
                 showError: false,
@@ -216,7 +215,7 @@
                 }
             },
 
-            async getProfile(uid) {
+            /*async getProfile(uid) {
                 const docRef = db.collection('users').doc(uid);
                 try {
                     const doc = await docRef.get();
@@ -236,7 +235,7 @@
                     this.showErrorToast(e.message);
                     console.log(e);
                 }
-            },
+            },*/
         },
 
         computed: {
@@ -247,10 +246,16 @@
                     return null;
                 }
             },
+            user() {
+                if (this.$store.state.user) {
+                    return this.$store.state.user;
+                } else {
+                    return null;
+                }
+            },
         },
 
         created() {
-            this.getProfile(this.uid);
             auth.onAuthStateChanged( user => this.authenticated(user) );
         },
     }

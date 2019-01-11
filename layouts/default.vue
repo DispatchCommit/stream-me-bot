@@ -38,6 +38,10 @@
 
             <v-spacer />
 
+            <User />
+
+            <v-divider vertical />
+
             <v-btn
                 icon
                 @click="right = !right"
@@ -59,10 +63,12 @@
 
     import NavMenu from '@/components/NavMenu'
     import Chat from '@/components/Chat'
+    import User from '~/components/Toolbar/User';
 
     export default {
 
         components: {
+            User,
             NavMenu,
             Chat,
         },

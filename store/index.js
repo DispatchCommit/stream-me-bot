@@ -6,12 +6,13 @@ export const state = () => ({
     USER: null,
 
     auth: null,
+    user: null,
 
 });
 
 export const getters = {
 
-    isAuth: state => {
+    isAuth : state => {
         return !!state.auth;
     },
 
@@ -21,6 +22,10 @@ export const mutations = {
 
     setAuth(state, auth) {
         state.auth = auth
+    },
+
+    setUser(state, user) {
+        state.user = user;
     },
 
 };
@@ -39,5 +44,22 @@ export const actions = {
         }
         commit('setAuth', auth);
     },
+
+    /*login({ commit }, { req }) {
+        const token = await user.getIdToken();
+        const uid = user.uid;
+
+        const auth = {
+            accessToken: token,
+            uid: uid,
+        };
+
+        this.$store.commit('setAuth', auth);
+        Cookie.set('auth', auth);
+    },
+
+    logout({ commit }, { req }) {
+
+    },*/
 
 };
