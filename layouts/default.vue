@@ -55,8 +55,6 @@
 </template>
 
 <script>
-    // import { db } from '~/plugins/firebase.js'
-
     import { mapState } from 'vuex'
 
     import NavMenu from '../components/NavMenu'
@@ -81,7 +79,7 @@
                     { icon: 'desktop_windows', title: 'Stream Snipe', to: '/snipe' },
                     { icon: 'movie', title: 'YouTube', to: '/youtube' },
                     { icon: 'subscriptions', title: 'TogetherTube', to: '/togethertube' },
-                    { icon: 'verified_user', title: 'My Profile', to: '/login' },
+                    { icon: 'verified_user', title: 'My Profile', to: '/profile' },
                 ],
                 title: 'Dispatch: Archival Adventure',
             }
@@ -91,6 +89,14 @@
             ...mapState({
                 TITLE : 'TITLE',
             }),
+        },
+
+        methods: {
+
+        },
+
+        created() {
+
         },
 
         mounted() {

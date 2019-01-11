@@ -1,10 +1,19 @@
-export default function (ctx) {
-    if(!isAuth()) {
-        return ctx.redirect('/login')
+
+export default function ({redirect, store}) {
+    console.log('checking middleware');
+
+    if (process.server) return;
+
+    if (!store.getters['isAuth']) {
+        console.log('Not authenticated! Redirecting...');
+        return redirect('/login');
     }
+
+    // if(!isAuth(store)) {
+    //     return redirect('/login');
+    // }
 }
 
-function isAuth() {
-    // Check if user session exists somehow
-    return false;
+function isAuth(store) {
+    return !!store.getters['isAuth'];
 }

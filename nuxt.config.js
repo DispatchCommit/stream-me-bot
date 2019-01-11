@@ -41,13 +41,14 @@ module.exports = {
     */
     plugins: [
         '@/plugins/vuetify',
+        // '@/plugins/firebase',
+        // '@/plugins/fireauth',
     ],
 
     /*
     ** Nuxt.js modules
     */
     modules: [
-        // Doc: https://github.com/nuxt-community/axios-module#usage
         '@nuxtjs/axios',
         // '@nuxtjs/auth',
     ],
@@ -77,7 +78,7 @@ module.exports = {
                     enforce: 'pre',
                     test: /\.(js|vue)$/,
                     loader: 'eslint-loader',
-                    exclude: /(node_modules)/
+                    exclude: /(node_modules)/,
                 });
             }
         },

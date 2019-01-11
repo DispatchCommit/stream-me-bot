@@ -1,5 +1,4 @@
 <template>
-
     <v-container
         fill-height
     >
@@ -158,15 +157,8 @@
                 </v-snackbar>
 
             </v-flex>
-
-
-
         </v-layout>
-
-
-
     </v-container>
-
 </template>
 
 <script>
@@ -229,9 +221,7 @@
                         email: email,
                     });
                     console.log(docRef);
-                    this.showSuccessToast(`Logged in!`);
                 } catch (error) {
-                    console.error(`${error.code}: ${error.message}`);
                     this.showErrorToast(error.message);
                 }
                 this.loading = false;
@@ -242,11 +232,10 @@
 
                 this.loading = true;
                 try {
+                    await auth.setPersistence(this.options.shouldStayLoggedIn ? 'local' : 'session'); // firebase.auth.Auth.Persistence.SESSION
                     const userCredential = await auth.signInWithEmailAndPassword(email, password);
-                    console.log(userCredential);
-                    this.showSuccessToast(`Logged in!`);
+                    console.log(userCredential.user);
                 } catch (error) {
-                    console.error(`${error.code}: ${error.message}`);
                     this.showErrorToast(error.message);
                 }
                 this.loading = false;
@@ -261,10 +250,28 @@
                 this.showSuccess = true;
                 this.success.message = message;
             },
+
+            authenticated(user) {
+                if (user) {
+                    console.log(`Default: Logged in: ${user.email}`);
+                    console.log(user);
+                    this.showSuccessToast(`Logged in!`);
+
+                    this.$store.dispatch('saveUser', user.toJSON() );
+
+                    this.$router.push('/profile');
+                } else {
+                    this.showErrorToast(`Logged out!`);
+                }
+            },
         },
 
         computed: {
 
+        },
+
+        created() {
+            auth.onAuthStateChanged( user => this.authenticated(user) );
         },
     }
 </script>
