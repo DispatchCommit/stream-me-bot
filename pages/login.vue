@@ -164,8 +164,12 @@
 <script>
     import { auth, db } from '@/plugins/firebase.js'
 
+    const Cookie = process.client ? require('js-cookie') : undefined;
+
     export default {
         name: 'login',
+
+        middleware: 'not-auth',
 
         data() {
             return {
@@ -234,7 +238,8 @@
                 try {
                     await auth.setPersistence(this.options.shouldStayLoggedIn ? 'local' : 'session'); // firebase.auth.Auth.Persistence.SESSION
                     const userCredential = await auth.signInWithEmailAndPassword(email, password);
-                    console.log(userCredential.user);
+
+                    console.log(`%cLogin.vue:%c Signing in... %o`, 'background: #2196f3; color: #fff; border-radius: 3px; padding: .25rem;', '', userCredential.user);
                 } catch (error) {
                     this.showErrorToast(error.message);
                 }
@@ -251,17 +256,26 @@
                 this.success.message = message;
             },
 
-            authenticated(user) {
+            async authenticated(user) {
                 if (user) {
-                    console.log(`Default: Logged in: ${user.email}`);
-                    console.log(user);
-                    this.showSuccessToast(`Logged in!`);
+                    const token = await user.getIdToken();
+                    const uid = user.uid;
 
-                    this.$store.dispatch('saveUser', user.toJSON() );
+                    const auth = {
+                        accessToken: token,
+                        uid: uid,
+                    };
+
+                    this.$store.commit('setAuth', auth);
+                    Cookie.set('auth', auth);
+
+                    console.log(`%cLogin.vue:%c Logged in! %o`, 'background: #2196f3; color: #fff; border-radius: 3px; padding: .25rem;', '', user);
+                    this.showSuccessToast(`Logged in!`);
 
                     this.$router.push('/profile');
                 } else {
-                    this.showErrorToast(`Logged out!`);
+                    this.showErrorToast(`Not Logged In!`);
+                    console.log(`%cLogin.vue:%c Not Logged In!`, 'background: #2196f3; color: #fff; border-radius: 3px; padding: .25rem;', '');
                 }
             },
         },
@@ -271,7 +285,7 @@
         },
 
         created() {
-            auth.onAuthStateChanged( user => this.authenticated(user) );
+            auth.onAuthStateChanged( async user => await this.authenticated(user) );
         },
     }
 </script>

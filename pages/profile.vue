@@ -32,7 +32,7 @@
                         <v-form>
 
                             <v-text-field
-                                v-model="user.displayName"
+                                v-model="user.name"
                                 :readonly="!allowEdit"
                                 light="light"
                                 prepend-icon="person"
@@ -40,11 +40,19 @@
                             />
 
                             <v-text-field
-                                v-model="user.email"
+                                v-model="user.username"
                                 :readonly="!allowEdit"
                                 light="light"
                                 prepend-icon="person"
                                 label="Username"
+                            />
+
+                            <v-text-field
+                                v-model="user.email"
+                                :readonly="!allowEdit"
+                                light="light"
+                                prepend-icon="person"
+                                label="Email"
                             />
 
                         </v-form>
@@ -63,6 +71,7 @@
                             color="primary"
                             flat
                             nuxt
+                            disabled
                         >Edit</v-btn>
                         <v-btn
                             color="primary"
@@ -120,7 +129,7 @@
 </template>
 
 <script>
-    import { auth } from '@/plugins/firebase.js'
+    import { auth, db } from '@/plugins/firebase.js'
 
     export default {
         name: 'profile',
@@ -129,6 +138,7 @@
 
         data() {
             return {
+                user: null,
                 allowEdit: false,
 
                 showError: false,
@@ -146,6 +156,7 @@
         methods: {
             async logout() {
                 await auth.signOut();
+                this.$router.push('/signout');
             },
 
             showErrorToast(message) {
@@ -160,23 +171,41 @@
 
             authenticated(user) {
                 if (user) {
-                    console.log(`Default: Logged in: ${user.email}`);
-                    console.log(user);
-                    this.showSuccessToast(`Logged in!`);
-
-                    this.$store.dispatch('saveUser', user.toJSON() );
-
+                    // this.showSuccessToast(`Logged in!`);
+                    this.getProfile(this.uid);
                 } else {
-                    this.showErrorToast(`Logged out!`);
+                    // this.showErrorToast(`Logged out!`);
                     this.$router.push('/login');
                 }
+            },
+
+            async getProfile(uid) {
+                const docRef = db.collection('users').doc(uid);
+                try {
+                    const doc = await docRef.get();
+                    if (doc.exists) {
+                        console.log(doc);
+                        console.log(doc.data());
+                        this.user = doc.data();
+                    } else {
+                        this.user = {
+                            uid: uid,
+                        };
+                        console.log(`%cProfile.vue:%c No user data!`, 'background: #2196f3; color: #fff; border-radius: 3px; padding: .25rem;', '');
+                        this.showErrorToast(`No associated user data found!`);
+                    }
+                } catch (e) {
+                    this.showErrorToast(e.message);
+                    console.log(e);
+                }
+
             },
         },
 
         computed: {
-            user() {
-                if (this.$store.state.USER) {
-                    return this.$store.state.USER;
+            uid() {
+                if (this.$store.state.auth) {
+                    return this.$store.state.auth.uid;
                 } else {
                     return null;
                 }
@@ -188,7 +217,3 @@
         },
     }
 </script>
-
-<style lang='css'>
-
-</style>

@@ -22,11 +22,6 @@
                   </v-responsive>
               </v-layout>
 
-              <!--<hr
-                  class="mb-2"
-                  :color="`${ currentUser ? ( users[currentUser].live ? '#4CAF50' : 'error' ) : '#ff9800' }`"
-              >-->
-
               <v-progress-linear
                   :color="`${ currentUser ? ( users[currentUser].live ? '#4CAF50' : 'error' ) : '#607D8B' }`"
                   height="3"
@@ -73,12 +68,6 @@
         data() {
             return {
                 users: [
-                    /*{
-                        label: 'Kitty',
-                        username: 'kittystyle',
-                        live: undefined,
-                        viewers: 0,
-                    },*/
                     {
                         label: 'KOVALSKI',
                         username: 'kovalski',

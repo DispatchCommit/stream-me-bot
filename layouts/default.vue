@@ -57,8 +57,8 @@
 <script>
     import { mapState } from 'vuex'
 
-    import NavMenu from '../components/NavMenu'
-    import Chat from '../components/Chat'
+    import NavMenu from '@/components/NavMenu'
+    import Chat from '@/components/Chat'
 
     export default {
 
@@ -105,7 +105,7 @@
             //         Object.assign({ id: doc.id }, doc.data())
             //     )
             // });
-        }
+        },
     }
 </script>
 

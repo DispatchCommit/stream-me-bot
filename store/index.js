@@ -1,18 +1,20 @@
+const cookieparser = process.server ? require('cookieparser') : undefined;
 // import axios from 'axios'
 // import { auth } from '@/plugins/firebase.js'
 
 export const state = () => ({
 
     TITLE: 'STREAM TITLE',
-    UID: null,
     USER: null,
+
+    auth: null,
 
 });
 
 export const getters = {
-    isAuth: state => {
-        return !!state.UID && !!state.USER;
-    },
+    /*isAuth: state => {
+        return !!state.auth;
+    },*/
 };
 
 export const mutations = {
@@ -25,8 +27,9 @@ export const mutations = {
         state.USER = value;
     },
 
-    setUID (state, value) {
-        state.UID = value;
+
+    setAuth(state, auth) {
+        state.auth = auth
     },
 
 };
@@ -60,4 +63,18 @@ export const actions = {
         commit('setUID', value.uid);
         return true;
     },
+
+    nuxtServerInit({ commit }, { req }) {
+        let auth = null;
+        if (req.headers.cookie) {
+            const parsed = cookieparser.parse(req.headers.cookie);
+            try {
+                auth = JSON.parse(parsed.auth);
+            } catch (err) {
+                // No valid cookie found
+            }
+        }
+        commit('setAuth', auth);
+    },
+
 };

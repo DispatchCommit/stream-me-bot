@@ -1,4 +1,5 @@
-import firebase from 'firebase'
+// import firebase from 'firebase'
+import * as firebase from 'firebase/app';
 
 import 'firebase/auth'
 import 'firebase/firestore'
@@ -17,7 +18,7 @@ if ( !firebase.apps.length )
 
 const auth = firebase.auth();
 const db = firebase.firestore();
-// const storage = firebase.storage(); //if use storage
+// const storage = firebase.storage(); // if use storage
 
 db.settings({
     timestampsInSnapshots: true,
