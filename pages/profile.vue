@@ -6,31 +6,69 @@
             align-center
             justify-center
         >
+
             <v-flex
-                style="max-width: 500px"
-                class='login-form text-xs-center'
+                style="max-width: 600px"
+                class='login-form'
             >
-                <div class="display-1 mb-3">
-                    <v-icon
-                        class="mr-2"
-                        large="large"
-                    >https</v-icon>
-                    Profile
-                </div>
 
                 <v-card
-                    v-if="user"
                     class="mb-3"
                     light="light"
                 >
-                    <v-card-text>
+                    <v-img src="https://images.unsplash.com/photo-1547095912-1bc0ec9c075c" :aspect-ratio="27/9">
+                        <v-layout
+                            fill-height
+                            column
+                            pa-2
+                        >
+                            <v-spacer/>
+                            <v-flex shrink>
+                                <div class="headline white--text">
+                                    Account Details
+                                </div>
+                            </v-flex>
+                        </v-layout>
+                    </v-img>
 
-                        <div class="subheading">
-                            <div>View & Modify Account Detials</div>
-                        </div>
+                    <v-tabs
+                        v-model="currentTab"
+                        color="blue-grey"
+                        slider-color="amber"
+                        dark
+                        grow
+                    >
+                        <v-tab
+                            ripple
+                        >
+                            Overlay Settings
+                        </v-tab>
+                        <v-tab
+                            ripple
+                        >
+                            Account Options
+                        </v-tab>
+                        <v-tab
+                            ripple
+                        >
+                            Linked Accounts
+                        </v-tab>
+                    </v-tabs>
 
-                        <v-form>
+                    <v-card-text
+                        v-if="user"
+                    >
+                        <v-form v-if="currentTab === 0">
+                            <v-text-field
+                                v-model="user.streamme"
+                                :readonly="!allowEdit"
+                                light="light"
+                                prepend-icon="person"
+                                label="Stream.me Username"
+                            />
+                        </v-form>
 
+                        <v-form v-if="currentTab === 1">
                             <v-text-field
                                 v-model="user.name"
                                 :readonly="!allowEdit"
@@ -38,7 +76,6 @@
                                 prepend-icon="person"
                                 label="Display Name"
                             />
-
                             <v-text-field
                                 v-model="user.username"
                                 :readonly="!allowEdit"
@@ -46,7 +83,6 @@
                                 prepend-icon="person"
                                 label="Username"
                             />
-
                             <v-text-field
                                 v-model="user.email"
                                 :readonly="!allowEdit"
@@ -54,18 +90,26 @@
                                 prepend-icon="person"
                                 label="Email"
                             />
-
                         </v-form>
+
+                        <div v-if="currentTab === 2">
+                            <v-alert
+                                :value="true"
+                                type="error"
+                            >
+                                Not implemented currently!
+                            </v-alert>
+                        </div>
 
                         <div
                             class="text-xs-left"
                         >
-                            <small>UID: {{ user.uid }}</small>
+                            <small>UID: {{ !!user ? user.uid : '...' }}</small>
                         </div>
 
                     </v-card-text>
 
-                    <v-card-actions v-if="user">
+                    <v-card-actions>
                         <v-spacer/>
                         <v-btn
                             color="primary"
@@ -83,13 +127,6 @@
 
                 </v-card>
 
-                <v-card v-else>
-                    <v-card-text>
-                        <div class="subheading">
-                            <div>Loading account...</div>
-                        </div>
-                    </v-card-text>
-                </v-card>
             </v-flex>
         </v-layout>
 
@@ -138,6 +175,8 @@
 
         data() {
             return {
+                currentTab: 0,
+
                 user: null,
                 allowEdit: false,
 
