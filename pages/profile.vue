@@ -214,28 +214,6 @@
                     this.$router.push('/login');
                 }
             },
-
-            /*async getProfile(uid) {
-                const docRef = db.collection('users').doc(uid);
-                try {
-                    const doc = await docRef.get();
-                    if (doc.exists) {
-                        console.log(doc);
-                        console.log(doc.data());
-                        this.user = doc.data();
-                        this.showSuccessToast(`Successfully retrieved user data!`);
-                    } else {
-                        this.user = {
-                            uid: uid,
-                        };
-                        console.log(`%cProfile.vue:%c No user data!`, 'background: #2196f3; color: #fff; border-radius: 3px; padding: .25rem;', '');
-                        this.showErrorToast(`No associated user data found!`);
-                    }
-                } catch (e) {
-                    this.showErrorToast(e.message);
-                    console.log(e);
-                }
-            },*/
         },
 
         computed: {

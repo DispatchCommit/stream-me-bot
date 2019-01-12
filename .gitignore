@@ -79,3 +79,4 @@ dist
 
 # IDE
 .idea
+services/ChatArchiver/firebase-adminsdk-key.json
