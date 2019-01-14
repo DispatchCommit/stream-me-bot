@@ -13,11 +13,20 @@ const axios_1 = require("axios");
 const colors = require("colors/safe");
 const winston = require("winston");
 const WebSocket = require("ws");
-require("./WebSocketClient");
-const CHAT_MANIFEST_URL = 'https://www.stream.me/api-web/v1/chat/room/';
-const WEB_SOCKET = 'wss://www.stream.me/api-rooms/v3/ws';
-// const CHAT_ROOM_KEY  = process.env.CHAT_ROOM_KEY
+// import './WebSocketClient'
+const LOG_FILE_NAME = 'chat';
 const CHAT_USERNAME = process.argv[2] || 'danishpolice';
+// Stream.me API locations
+const CHAT_MANIFEST_URL = 'https://www.stream.me/api-web/v1/chat/room/';
+const WEB_SOCKET_URL = 'wss://www.stream.me/api-rooms/v3/ws';
+// Role to color map.
+const ROLE_COLORS = {
+    guest: colors.grey,
+    user: colors.white,
+    moderator: colors.cyan,
+    owner: colors.red,
+    admin: colors.red,
+};
 //////////////////////////////////////////
 const firebase = require("firebase/app");
 require("firebase/auth");
@@ -36,28 +45,50 @@ db.settings({
 });
 const docRef = db.collection('chatlogs').doc(CHAT_USERNAME).collection('messages');
 //////////////////////////////////////////
+// Create Logger
 const logger = winston.createLogger({
     transports: [
-        new winston.transports.File({ filename: 'chat.log' }),
+        new winston.transports.File({ filename: `${LOG_FILE_NAME}.log` }),
     ],
 });
 const getRoomId = async (username) => {
     const url = `https://stream.me/api-user/v2/${username}/app/web/channel`;
-    const resp = await axios_1.default.get(url);
-    const userId = resp.data['userPublicId'];
-    return `user:${userId}:web`;
+    try {
+        const resp = await axios_1.default.get(url);
+        const userId = resp.data['userPublicId'];
+        return `user:${userId}:web`;
+    }
+    catch (e) {
+        if (e.response) {
+            console.log(`${e.response.status} - ${e.response.statusText}`);
+        }
+        else if (e.request) {
+            console.log(e.request);
+        }
+        else {
+            console.log(e.message);
+        }
+        return null;
+    }
 };
 /**
  * Fetches the chat manifest from the given path.
  *
- * @param {string} room - The room we want to look at
+ * @param {string} roomKey - The room we want to look at
  * @return {Promise<Object>} promise resolving to chat manifest object
  */
-const getChatManifest = async (room) => {
-    const path = `${CHAT_MANIFEST_URL}${room}`;
+const getChatManifest = async (roomKey) => {
+    const path = `${CHAT_MANIFEST_URL}${roomKey}`;
+    console.log(colors.green(CHAT_USERNAME));
     console.log(path);
-    const resp = await axios_1.default.get(path);
-    return resp.data;
+    try {
+        const resp = await axios_1.default.get(path);
+        return resp.data;
+    }
+    catch (e) {
+        console.log(e.response);
+        return null;
+    }
 };
 /**
  * Gets the final value of the node from the given subnode of the manifest.
@@ -124,13 +155,6 @@ const generateMessage = (message, manifest) => {
     const _a = manifest.parserManifests, { manifests: { v2: messageManifest } } = _a, chatData = __rest(_a, ["manifests"]);
     return parseMessageNode(message.data, messageManifest, chatData);
 };
-// Role to color map.
-const roleColors = {
-    guest: colors.grey,
-    user: colors.white,
-    moderator: colors.cyan,
-    owner: colors.red,
-};
 // Counts the amount of characters that are colors in the text.
 const colorCharsCount = s => s.length - colors.stripColors(s).length;
 /**
@@ -150,7 +174,7 @@ const styleEmoticons = data => (Object.assign({}, data, { message: data.emoticon
  * @param {Object} message - The message object
  * @return {string} formatted message
  */
-const formatMessage = message => roleColors[message.actor.role](`${message.actor.username}: `) + styleEmoticons(message).message;
+const formatMessage = message => ROLE_COLORS[message.actor.role](`${message.actor.username}: `) + styleEmoticons(message).message;
 /**
  * Formats a message into a readable format from a chat object.
  *
@@ -158,7 +182,8 @@ const formatMessage = message => roleColors[message.actor.role](`${message.actor
  * @return {string} formatted message
  */
 const logMessage = async (message) => {
-    const msg = `${message.actor.username}: ${message.message}`;
+    const msg = `(${CHAT_USERNAME}) ${message.actor.username}: ${message.message}`;
+    logger.info(msg);
     await docRef.add({
         author: message.actor.username,
         message: message.message,
@@ -171,9 +196,17 @@ const logMessage = async (message) => {
  */
 const main = async () => {
     const CHAT_ROOM_KEY = await getRoomId(CHAT_USERNAME);
-    const manifest = await getChatManifest(CHAT_ROOM_KEY);
+    if (!CHAT_ROOM_KEY) {
+        console.log(`Failed to retrieve user ${CHAT_USERNAME}!`);
+        return;
+    }
+    const CHAT_MANIFEST = await getChatManifest(CHAT_ROOM_KEY);
+    if (!CHAT_MANIFEST) {
+        console.log(`Failed to retrieve chatroom manifest data.`);
+        return;
+    }
     // const ws = USE_CUSTOM_WS? new WebSocket(WEB_SOCKET) : new WebSocketClient(WEB_SOCKET);
-    const ws = new WebSocket(WEB_SOCKET);
+    const ws = new WebSocket(WEB_SOCKET_URL);
     ws.on('open', () => {
         console.log('Connected.');
         logger.info('Connected.');
@@ -184,11 +217,10 @@ const main = async () => {
         const message = JSON.parse(data.substr(13)); // skip 'chat message '
         if (message.type !== 'chat')
             return;
-        const formedMessage = generateMessage(message, manifest);
+        const formedMessage = generateMessage(message, CHAT_MANIFEST);
         const msg = formatMessage(formedMessage);
         console.log(msg);
-        const logMsg = await logMessage(formedMessage);
-        logger.info(logMsg);
+        await logMessage(formedMessage);
     });
     ws.on('close', (reason, number) => {
         console.log('Closed', reason, number);
