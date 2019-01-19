@@ -16,7 +16,7 @@ const WebSocket = require("ws");
 const exitHook = require("async-exit-hook");
 // import './WebSocketClient'
 const LOG_FILE_NAME = 'chat';
-const CHAT_BATCH_SIZE = 20;
+const CHAT_BATCH_SIZE = 25;
 const CHAT_USERNAME = process.argv[2] || 'danishpolice';
 // Stream.me API locations
 const CHAT_MANIFEST_URL = 'https://www.stream.me/api-web/v1/chat/room/';

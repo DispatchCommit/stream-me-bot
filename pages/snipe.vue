@@ -146,6 +146,18 @@
                         live: undefined,
                         viewers: 0,
                     },
+                    {
+                        label: 'Zoom',
+                        username: 'godspeedlive',
+                        live: undefined,
+                        viewers: 0,
+                    },
+                    {
+                        label: 'Andy',
+                        username: 'Andywarski',
+                        live: undefined,
+                        viewers: 0,
+                    },
                 ],
                 chat: false,
                 currentUser: null,

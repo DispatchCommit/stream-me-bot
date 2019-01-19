@@ -6,7 +6,7 @@ import * as exitHook from 'async-exit-hook'
 // import './WebSocketClient'
 
 const LOG_FILE_NAME : string     = 'chat';
-const CHAT_BATCH_SIZE : number   = 20;
+const CHAT_BATCH_SIZE : number   = 25;
 const CHAT_USERNAME : string     = process.argv[2] || 'danishpolice';
 
 // Stream.me API locations
