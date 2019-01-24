@@ -1,6 +1,6 @@
 {
     "name": "chatarchiver",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "description": "An auto-archiving utility to log chat messages on stream.me",
     "main": "app.js",
     "scripts": {

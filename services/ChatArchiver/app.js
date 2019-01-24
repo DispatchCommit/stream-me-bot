@@ -15,9 +15,10 @@ const winston = require("winston");
 const WebSocket = require("ws");
 const exitHook = require("async-exit-hook");
 // import './WebSocketClient'
+const DEBUG = false;
 const LOG_FILE_NAME = 'chat';
 const CHAT_BATCH_SIZE = 25;
-const CHAT_USERNAME = process.argv[2] || 'danishpolice';
+const CHAT_USERNAME = process.argv[2] || 'dispatch';
 // Stream.me API locations
 const CHAT_MANIFEST_URL = 'https://www.stream.me/api-web/v1/chat/room/';
 const WEB_SOCKET_URL = 'wss://www.stream.me/api-rooms/v3/ws';
@@ -45,7 +46,7 @@ const db = firebase.firestore();
 db.settings({
     timestampsInSnapshots: true,
 });
-const docRef = db.collection('chatlogs').doc(CHAT_USERNAME).collection('messages');
+// const docRef = db.collection('chatlogs').doc(CHAT_USERNAME).collection('messages');
 //////////////////////////////////////////
 // Create Logger
 const logger = winston.createLogger({
@@ -81,8 +82,10 @@ const getRoomId = async (username) => {
  */
 const getChatManifest = async (roomKey) => {
     const path = `${CHAT_MANIFEST_URL}${roomKey}`;
-    console.log(colors.red(CHAT_USERNAME));
-    console.log(path);
+    if (DEBUG) {
+        console.log(colors.red(CHAT_USERNAME));
+        console.log(path);
+    }
     try {
         const resp = await axios_1.default.get(path);
         return resp.data;
@@ -181,6 +184,7 @@ const styleEmoticons = data => (Object.assign({}, data, { message: data.emoticon
 // const formatMessage = message => ROLE_COLORS[message.actor.role](`${message.actor.username}: `) + styleEmoticons(message).message;
 let batch = db.batch();
 let batchSize = 0;
+let logQueue = [];
 /**
  * Formats a message into a readable format from a chat object.
  *
@@ -197,21 +201,38 @@ const logMessageBatch = async (message) => {
         message: message.message,
         timestamp: firebase.firestore.Timestamp.now(),
     };
-    batch.set(docRef, data);
-    batchSize++;
-    if (batchSize >= CHAT_BATCH_SIZE)
-        await batchCommit();
+    logQueue.push({ docRef, data });
+    if (logQueue.length >= CHAT_BATCH_SIZE)
+        await saveBatch();
 };
-const batchCommit = async () => {
+const createBatch = (messageQueue) => {
+    const batch = db.batch();
+    for (let i = 0, max = messageQueue.length; i < max; i++) {
+        batch.set(messageQueue[i].docRef, messageQueue[i].data);
+    }
+    return batch;
+};
+const saveBatch = async () => {
+    // Let us know we are about to save to firebase
+    console.log(colors.yellow('Begin saving to FireBase.'));
+    // Create batch operation from message queue
+    const batch = createBatch(logQueue);
+    // Empty message queue before we await
+    // This way we are available for any new messages
+    // That may arrive while we are writing to firebase
+    logQueue = [];
+    // Await firestore batch operation.
     await batch.commit();
-    batch = db.batch();
-    batchSize = 0;
-    console.log(colors.yellow('Saved to FireBase.'));
+    // Let us know when we finish
+    console.log(colors.green('Saved to FireBase!'));
 };
 /**
  * The main part of the program opening a websocket and watching messages.
  */
 const main = async () => {
+    const version = colors.bgGreen('v1.1.0');
+    const welcome = colors.green(`Chat Dispatcher`);
+    console.log(`${welcome} ${version}`);
     const CHAT_ROOM_KEY = await getRoomId(CHAT_USERNAME);
     if (!CHAT_ROOM_KEY) {
         console.log(`Failed to retrieve user ${CHAT_USERNAME}!`);
@@ -224,10 +245,12 @@ const main = async () => {
     }
     const ws = new WebSocket(WEB_SOCKET_URL);
     ws.on('open', () => {
-        console.log(colors.green('Connected.\n'));
+        console.log(`Connected to: ${colors.magenta(CHAT_USERNAME)}.`);
         logger.info(`Connected to ${CHAT_USERNAME}.`);
         const joinRoom = JSON.stringify({ action: 'join', room: CHAT_ROOM_KEY });
         ws.send(`chat ${joinRoom}`);
+        // Alert PM2 that we are ready
+        process.send('ready');
     });
     ws.on('message', async (data, flags) => {
         const message = JSON.parse(data.substr(13)); // skip 'chat message '
@@ -238,7 +261,7 @@ const main = async () => {
     });
     ws.on('close', async (reason, number) => {
         if (batchSize > 0)
-            await batchCommit();
+            await saveBatch();
         console.log('Closed, Attempting to reconnect', reason, number);
         setTimeout(async () => await main(), 5000);
     });
@@ -246,10 +269,11 @@ const main = async () => {
         console.log(e);
     });
 };
+// Handles exit event in most cases
 exitHook(exit => {
     if (batchSize > 0) {
-        console.log(colors.cyan('\nATTEMPTING TO SAVE PENDING BATCH'));
-        batchCommit().then(() => {
+        console.log(colors.cyan('\nATTEMPTING TO SAVE PENDING BATCH...'));
+        saveBatch().then(() => {
             console.log('\nGoodbye :)');
             exit();
         });
@@ -257,6 +281,22 @@ exitHook(exit => {
     else {
         console.log('\nNo pending data - Goodbye :)');
         exit();
+    }
+});
+// Handles exit event in other cases
+process.on('message', msg => {
+    if (msg == 'shutdown') {
+        if (logQueue.length > 0) {
+            console.log(colors.cyan('\nATTEMPTING TO SAVE PENDING BATCH...'));
+            saveBatch().then(() => {
+                console.log('\nGoodbye :)');
+                process.exit(0);
+            });
+        }
+        else {
+            console.log('\nNo pending data - Goodbye :)');
+            process.exit(0);
+        }
     }
 });
 if (require.main === module)

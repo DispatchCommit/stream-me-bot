@@ -158,6 +158,12 @@
                         live: undefined,
                         viewers: 0,
                     },
+                    {
+                        label: 'Nick',
+                        username: 'rekietalaw',
+                        live: undefined,
+                        viewers: 0,
+                    },
                 ],
                 chat: false,
                 currentUser: null,
