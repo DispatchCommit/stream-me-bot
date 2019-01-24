@@ -86,6 +86,7 @@
                     { icon: 'movie', title: 'YouTube', to: '/youtube' },
                     { icon: 'subscriptions', title: 'TogetherTube', to: '/togethertube' },
                     { icon: 'verified_user', title: 'My Profile', to: '/profile' },
+                    { icon: 'volume_up', title: 'Text To Speech', to: '/tts' },
                 ],
                 title: 'Dispatch: Archival Adventure',
             }
