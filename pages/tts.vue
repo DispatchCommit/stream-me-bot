@@ -11,7 +11,6 @@
             sm10
             md8
         >
-
             <h3 class="title">Better Text To Speech</h3>
 
             <v-card
@@ -22,13 +21,10 @@
                     <v-layout
                         column
                     >
-                        <v-textarea
-                            v-model="message"
-                            name="tts-message"
-                            label="Message"
-                            hint="Max 200 Characters"
-                            @keypress.enter.prevent="speak"
-                        ></v-textarea>
+                        <v-card-title>
+                            <h3>Manual TTS Message</h3>
+                        </v-card-title>
+
 
                         <v-select
                             v-model="selectedVoice"
@@ -36,30 +32,54 @@
                             label="Voice List"
                         ></v-select>
 
-                        <v-btn
-                            class="my-2"
-                            color="#2196f3"
-                            dark
-                            @click="speak"
-                        >
-                            Play Text To Speech
-                        </v-btn>
+                        <v-textarea
+                            v-model="message"
+                            name="tts-message"
+                            label="Message"
+                            hint="Max 200 Characters"
+                            @keypress.enter.prevent="speak"
+                            rows="2"
+                            autofocus=true
+                            box
+                        ></v-textarea>
+
+                        <v-layout>
+                            <v-spacer/>
+
+                            <v-btn
+                                color="#2196f3"
+                                dark
+                                @click="speak"
+                            >
+                                Read Message
+                            </v-btn>
+                        </v-layout>
+
                     </v-layout>
                 </v-card-actions>
 
             </v-card>
+
+            <Chat/>
+
         </v-flex>
     </v-layout>
 </template>
 
 <script>
+    import Chat from '~/components/TTS/Chat'
+
     export default {
         name: 'tts',
+
+        components: {
+            Chat,
+        },
 
         data() {
             return {
                 isLoading: true,
-                message: 'This is a test of the new text to speech.',
+                message: '',
                 selectedVoice: 3,
                 synth: null,
                 voiceList: [],
@@ -82,11 +102,10 @@
              */
             speak () {
                 this.greetingSpeech.text = this.message;
-
                 this.greetingSpeech.voice = this.voices[this.selectedVoice];
-
+                this.greetingSpeech.pitch = 1;
+                this.greetingSpeech.rate = 1;
                 this.synth.speak(this.greetingSpeech);
-
                 this.message = '';
             }
         },
@@ -94,6 +113,8 @@
         computed: {},
 
         mounted() {
+            if (process.server) return;
+
             this.synth = window.speechSynthesis;
             this.greetingSpeech = new window.SpeechSynthesisUtterance();
 
@@ -110,11 +131,6 @@
                         value: i,
                     });
                 }
-
-
-                // give a bit of delay to show loading screen
-                // just for the sake of it, I suppose. Not the best reason
-                setTimeout(() => this.isLoading = false, 800);
             };
 
             this.listenForSpeechEvents();
