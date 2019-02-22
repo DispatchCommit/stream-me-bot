@@ -4,7 +4,7 @@ module.exports = {
     mode: 'universal',
 
     server: {
-        port: 80,
+        // port: 80,
         // host: 'localhost',
     },
 
