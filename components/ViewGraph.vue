@@ -19,49 +19,29 @@
 
         data() {
             return {
-                old_options: { //Chart.js options
-                    scales: {
-                        yAxes: [{
-                            scaleLabel: {
-                                display: true,
-                                labelString: 'Viewers',
-                            },
-                            ticks: {
-                                beginAtZero: true,
-                            },
-                            gridLines: {
-                                display: true,
-                            },
-                            stacked: false,
-                        }],
-                        xAxes: [ {
-                            ticks: {
-                                beginAtZero: true,
-                            },
-                            gridLines: {
-                                display: true,
-                            },
-                        }],
-                    },
-                    legend: {
-                        display: true,
-                        position: 'bottom',
-                    },
-                    title: {
-                        position: 'top',
-                    },
-                    responsive: true,
-                    maintainAspectRatio: false,
-                },
+
             };
         },
 
-        methods: {},
+        methods: {
+            render() {
+                this.renderChart(this.chartData, this.options);
+            },
+        },
 
         computed: {},
 
+        watch: {
+            options:{
+                handler() {
+                    this.render();
+                },
+                deep: true,
+            },
+        },
+
         mounted () {
-            this.renderChart(this.chartData, this.options)
+            this.render();
         },
     }
 </script>

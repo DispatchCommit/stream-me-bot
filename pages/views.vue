@@ -17,30 +17,54 @@
             >
 
                 <v-card-actions>
-                    <v-text-field
-                        v-model="user"
-                        label="Username"
-                        spellcheck="false"
-                        v-on:keyup.enter="getRandomInt"
-                    ></v-text-field>
+                    <v-container fluid grid-list-large>
+                        <v-layout row>
+                            <v-flex>
+                                <v-text-field
+                                    v-model="user"
+                                    label="Username"
+                                    spellcheck="false"
+                                    v-on:keyup.enter="getRandomInt"
+                                ></v-text-field>
+                            </v-flex>
 
-                    <v-btn
-                        class="mx-2"
-                        color="#2196f3"
-                        dark
-                        @click="getRandomInt"
-                    >
-                        Add User
-                    </v-btn>
+                            <v-flex shrink>
+                                <v-btn
+                                    class="mx-2"
+                                    color="#2196f3"
+                                    dark
+                                    @click="getRandomInt"
+                                >
+                                    Add User
+                                </v-btn>
+                            </v-flex>
 
-                    <v-btn
-                        class="mx-2"
-                        color="#607d8b"
-                        dark
-                        @click="reduceData"
-                    >
-                        Shrink
-                    </v-btn>
+                            <v-flex shrink>
+                                <v-btn
+                                    class="mx-2"
+                                    color="#607d8b"
+                                    dark
+                                    @click="reduceData"
+                                >
+                                    Shrink
+                                </v-btn>
+                            </v-flex>
+                        </v-layout>
+
+                        <v-layout row>
+                            <v-flex xs-12>
+                                <v-checkbox
+                                    v-model="stackedGraph"
+                                    :label="`Stacked Data: ${stackedGraph.toString()}`"
+                                    @change="options.scales.yAxes[0].stacked = stackedGraph"
+                                ></v-checkbox>
+                                <v-checkbox
+                                    v-model="filled"
+                                    :label="`Filled: ${filled.toString()}`"
+                                ></v-checkbox>
+                            </v-flex>
+                        </v-layout>
+                    </v-container>
                 </v-card-actions>
 
             </v-card>
@@ -58,17 +82,20 @@
 
     const userList = [
         'TheRalphRetort',
-        'GodspeedLive',
-        // 'RekietaLaw',
+        'RekietaLaw',
         'SPCC',
         'Murderder',
         'Mandalorian',
         'Randbot2020',
-        // 'NPCAnon88',
+        'NPCAnon88',
         'TheCognificent',
+        'Godspeed',
         'WildGoose',
-        // 'KOVALSKI',
+        'KOVALSKI',
         'MisterMetokur',
+        'Flamenco',
+        'AlmightyTevin',
+        'AndyWarski',
     ];
 
     const userColors = [
@@ -102,9 +129,14 @@
         data() {
             return {
                 user: 'TheRalphRetort',
-                refresh: 10,
+                refresh: 5,
+
+                stackedGraph: true,
+                filled: false,
+
                 datacollection: null,
                 datacollectionRalph: null,
+
                 timestamps: [],
                 viewData: [],
 
@@ -122,7 +154,7 @@
                             gridLines: {
                                 display: true,
                             },
-                            stacked: false,
+                            stacked: true,
                         }],
                         xAxes: [ {
                             ticks: {
@@ -139,7 +171,7 @@
                     },
                     title: {
                         display: true,
-                        text: 'Stream.me Viewrbase Overview',
+                        text: 'Stream.me Viewerbase Overview',
                         position: 'top',
                         fontSize: 14,
                     },
@@ -206,19 +238,14 @@
                 }
             },
 
-
-            getRandomInt () {
-                return Math.floor( Math.random() * (50 + 1) )
-            },
-
             reduceData() {
                 for ( let i = 0, j = this.viewData.length; i < j; i++ ) {
                     let arr = this.viewData[i];
-                    for ( let k = 0, l = arr.length; k < l; k += 2 ) {
+                    for ( let k = 1, l = arr.length; k < l; k += 2 ) {
                         arr.splice( k, 1 );
                     }
                 }
-                for ( let i = 0, j = this.timestamps.length; i < j; i += 2 ) {
+                for ( let i = 1, j = this.timestamps.length; i < j; i += 2 ) {
                     this.timestamps.splice( i, 1 );
                 }
             },
@@ -226,8 +253,10 @@
             async loop() {
                 this.timestamps.push( new Date().toLocaleTimeString() );
 
-
-                await Promise.all( this.viewData.map( async (data, i) => data.push( await this.getViewCount(userList[i]) ) ) );
+                await Promise.all( this.viewData.map( async (data, i) => {
+                    let viewers = await this.getViewCount(userList[i]);
+                    data.push( viewers < 5 ? null : viewers );
+                } ) );
 
                 // this.viewData.map( async (data, i) => data.push( await this.getViewCount(userList[i]) ) );
 
@@ -238,13 +267,15 @@
 
 
             async createData() {
+                // ---------------------
                 const dataset = [];
-
                 for (let i=0,j=this.viewData.length; i<j; i++) {
                     dataset.push({
                         label: userList[i],
                         borderColor: this.datacollection.datasets[i].borderColor,
-                        fill: false,
+                        fill: this.filled,
+                        spanGaps: true,
+                        lineTension: 0,
                         data: this.viewData[i],
                     });
                 }
@@ -261,6 +292,8 @@
                     borderColor: this.datacollectionRalph.datasets[0].borderColor,
                     backgroundColor: this.datacollectionRalph.datasets[0].backgroundColor,
                     fill: true,
+                    spanGaps: true,
+                    lineTension: 0,
                     data: this.viewData[0],
                 });
 
@@ -271,6 +304,8 @@
 
                 setTimeout( async () => await this.loop(), this.refresh * 1000 );
             },
+
+            getRandomInt() {},
         },
 
         computed: {},
@@ -286,7 +321,9 @@
                 dataset.push({
                     label: user,
                     borderColor: color,
-                    fill: false,
+                    fill: this.filled,
+                    spanGaps: true,
+                    lineTension: 0,
                     data: [0],
                 });
             });
@@ -301,8 +338,10 @@
             dataset2.push({
                 label: 'TheRalphRetort',
                 borderColor: userColors[15],
-                backgroundColor: userColors[15],
+                backgroundColor: '#ffcc80',
                 fill: true,
+                spanGaps: true,
+                lineTension: 0,
                 data: [0],
             });
 
